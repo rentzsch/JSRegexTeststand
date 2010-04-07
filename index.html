@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>JavaScriptRegexTest</title>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript">
+		function updateExampleMatch() {
+			var regex = $("#regex").text();
+			$('#examples :text').each(function(){
+				var regex = $('#regex').val();
+				var example = $(this).val();
+				if (example.match(regex)) {
+					$(this).attr("class","regex-match");
+				} else {
+					$(this).attr("class","regex-no-match");
+				}
+			});
+		}
+		$(document).ready(function(){
+			updateExampleMatch();
+			$('input').live("keyup",(function(){
+				updateExampleMatch();
+			}));
+			$('input').live("click",(function(){
+				if (event.shiftKey) {
+					$(this).remove();
+				}
+			}));
+			$('#add_example').click(function(){
+				$('#examples').append('<input type="text" size="80" value="replace_me">');
+				updateExampleMatch();
+			});
+		});
+		</script>
+		<style type="text/css">
+		body {
+			font-family: sans-serif;
+		}
+		#examples {
+			margin-top: 1em;
+		}
+		input[type="text"] {
+			margin-top: .75em;
+			padding: 0.75em;
+		}
+		.regex-match {
+			background-color: #C8F3AD;
+		}
+		.regex-no-match {
+			background-color: #F9CED1;
+		}
+		</style>
+	</head>
+	<body>
+	<form action="#">
+		<div>
+			Your Regex:<br>
+			<input type="text" id="regex" value="^\d+$" size="100">
+		</div>
+		<div id="examples">
+			Examples To Match Against: <input type="button" id="add_example" value="Add Example"><br>
+			<input type="text" size="80" value="9">
+			<input type="text" size="80" value="99">
+			<input type="text" size="80" value="9 9">
+			<input type="text" size="80" value="snugglebunny">
+		</div>
+	</form>
+	<p style="color:darkgray;font-size:smaller">shift-click to remove an example</p>
+	</body>
+</html>
