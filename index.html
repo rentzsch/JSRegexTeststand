@@ -5,29 +5,51 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript">
 		function updateExampleMatch() {
-			var regex = $("#regex").text();
-			$('#examples :text').each(function(){
-				var regex = $('#regex').val();
-				var example = $(this).val();
-				if (example.match(regex)) {
-					$(this).attr("class","regex-match");
+			var regexAttrs = '';
+			if ($('#opt-global')[0].checked) {
+				regexAttrs += 'g';
+			}
+			if ($('#opt-insensitive')[0].checked) {
+				regexAttrs += 'i';
+			}
+			
+			var regex = new RegExp($('#regex').val(), regexAttrs);
+			
+			$('.example').each(function(){
+				var $exampleDiv = $(this);
+				var $exampleInput = $($exampleDiv.children(':text')[0]);
+				var $exampleMatch = $($exampleDiv.children('.match')[0]);
+				var exampleString = $exampleInput.val();
+				
+				var matchRecord = exampleString.match(regex);//regex.exec(exampleString);
+				if (matchRecord) {
+					$exampleInput.attr('class', 'regex-match');
+					var matchOutput = '';
+					matchRecord.forEach(function(match, idx){
+						matchOutput += '<span class="match-idx">$'+idx+'</span> '+match+'&nbsp;&nbsp;';
+					});
+					$exampleMatch.html(matchOutput);
 				} else {
-					$(this).attr("class","regex-no-match");
+					$exampleInput.attr('class', 'regex-no-match');
+					$exampleMatch.html('');
 				}
 			});
 		}
 		$(document).ready(function(){
 			updateExampleMatch();
-			$('input').live("keyup",(function(){
+			$('input').live('keyup',(function(){
 				updateExampleMatch();
 			}));
-			$('input').live("click",(function(){
+			$('.example').live('click',(function(){
 				if (event.shiftKey) {
 					$(this).remove();
 				}
 			}));
+			$('#opt-global, #opt-insensitive').live('click',(function(){
+				updateExampleMatch();
+			}));
 			$('#add_example').click(function(){
-				$('#examples').append('<input type="text" size="80" value="replace_me">');
+				$('#examples').append('<div class="example"><input type="text" size="80" value="replace_me"><span class="match"></span></div>');
 				updateExampleMatch();
 			});
 		});
@@ -35,6 +57,9 @@
 		<style type="text/css">
 		body {
 			font-family: sans-serif;
+		}
+		#options {
+			font-size: smaller;
 		}
 		#examples {
 			margin-top: 1em;
@@ -49,20 +74,27 @@
 		.regex-no-match {
 			background-color: #F9CED1;
 		}
+		.match-idx {
+			color: gray;
+		}
 		</style>
 	</head>
 	<body>
 	<form action="#">
 		<div>
 			Your Regex:<br>
-			<input type="text" id="regex" value="^\d+$" size="100">
+			<input type="text" id="regex" value="^(\d+)$" size="100">
+		</div>
+		<div id="options">
+			<label><input type="checkbox" id="opt-global">Global</label>
+			<label><input type="checkbox" id="opt-insensitive">Case Insensitive</label>
 		</div>
 		<div id="examples">
 			Examples To Match Against: <input type="button" id="add_example" value="Add Example"><br>
-			<input type="text" size="80" value="9">
-			<input type="text" size="80" value="99">
-			<input type="text" size="80" value="9 9">
-			<input type="text" size="80" value="snugglebunny">
+			<div class="example"><input type="text" size="80" value="9"><span class="match"></span></div>
+			<div class="example"><input type="text" size="80" value="99"><span class="match"></span></div>
+			<div class="example"><input type="text" size="80" value="9 9"><span class="match"></span></div>
+			<div class="example"><input type="text" size="80" value="snugglebunny"><span class="match"></span></div>
 		</div>
 	</form>
 	<p style="color:darkgray;font-size:smaller">shift-click to remove an example</p>
